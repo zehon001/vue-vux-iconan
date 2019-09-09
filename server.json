@@ -2,15 +2,15 @@
     "webapp": {
         "environments": {
             "dev": {
-                "service": "http://localhost:18080/iconan",
+                "service": "http://localhost:18080/comic",
                 "pic-service": "http://iconan.bj.bcebos.com"
             },
             "test": {
-                "service": "http://meleong.duapp.com/iconan",
+                "service": "http://192.168.1.104:9010/comic",
                 "pic-service": "http://iconan.bj.bcebos.com"
             },
             "production": {
-                "service": "/iconan",
+                "service": "/comic",
                 "pic-service": "http://iconan.bj.bcebos.com"
             }
         }

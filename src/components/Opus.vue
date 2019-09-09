@@ -26,7 +26,7 @@
             </tab>
         </div>
         <div class="chapter-area" v-show="tabIndex == 0">
-            <div class="chapter" @click="read(item.id, item.name)" v-for="item in chapters" :key="item.id">{{item.name}}</div>
+            <div class="chapter" @click="read(item.season_url, item.title)" v-for="item in seasons" :key="item.season_url">{{item.title}}</div>
         </div>
         <div class="summary-area" v-show="tabIndex == 1">
             {{opus.summary}}
@@ -42,24 +42,45 @@ import HeaderBar from "@/components/common/HeaderBar";
 export default {
     name: "Opus",
     data() {
+
+        // return {
+        //     opus: {
+        //         name: "进击的巨人",
+        //         summary:
+        //             "",
+        //         author: "作者：諫山创",
+        //         type: 0,
+        //         cover: "http://img.94201314.net/comicui/23059.JPG",
+        //         popularity: "100万+",
+        //         score: 4.5
+        //     },
+        //     seasons: [
+        //         {
+        //             season_url: 'http://99770.hhxxee.com/comic/6643/357047/',
+        //             title: "进击的巨人 120集"
+        //         }
+        //     ],
+        //     tabIndex: 0
+        // };
+
         return {
             opus: {
-                cover: "http://iconan.bj.bcebos.com/r-icon.jpg@!z5"
+                cover: ""
             },
-            chapters: [],
+            seasons: [],
             tabIndex: 0
         };
     },
     methods: {
-        read: function (chapterid, chapterName) {
+        read: function (season_url, title) {
             let that = this;
-            if (chapterid) {
+            if (season_url) {
                 this.$router.push({
-                    path: "/picture/" + chapterid
+                    path: "/picture?url=" + season_url
                 });
-            } else if (that.chapters.length > 0) {
+            } else if (that.seasons.length > 0) {
                 this.$router.push({
-                    path: "/picture/" + that.chapters[0].id
+                    path: "/picture?url=" + that.seasons[0].season_url
                 });
             }
         },
@@ -69,13 +90,18 @@ export default {
     },
     mounted: function () {
         let that = this;
+        console.log('路由参数',that.$route.query.url);
+        that.opus.cover = that.$route.query.src||"";
+        that.opus.author = that.$route.query.info||"";
+        //main_title
         that.$api
-            .get("/getopus", {
-                opusid: that.$route.params.opusid
+            .get("/season", {
+                url: that.$route.query.url
             })
             .then(function (data) {
-                that.opus = data.opus;
-                that.chapters = data.chapters;
+                console.log(data);
+                that.opus.name = data.main_title||"";
+                that.seasons = data.seasons;
             })
             .catch(that.$errorHandle);
     },

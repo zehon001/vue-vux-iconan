@@ -1,41 +1,40 @@
 <template>
-    <div class="opus-view">
-        <hide-nav-bar></hide-nav-bar>
-        <transition name="slide-down">
-            <div class="menu" v-show="showMenu">
-                <div class="header-menu">
-                    <header-bar></header-bar>
-                    <button type="button" class="definition-menu" @click="showDefinitionMenu = true">
-                        {{menus[currentDefinition]}}
-                    </button>
+    <div class="pic-view">
+        <div class="controller-view">
+            <hide-nav-bar></hide-nav-bar>
+            <transition name="slide-down">
+                <div class="menu" v-show="showMenu">
+                    <div class="header-menu">
+                        <header-bar></header-bar>
+                        <button type="button" class="definition-menu" @click="showDefinitionMenu = true">
+                            {{menus[currentDefinition]}}
+                        </button>
+                    </div>
+                    <div class="mask" @click="showMenu = false"></div>
                 </div>
-                <div class="mask" @click="showMenu = false"></div>
+            </transition>
+            <div class="controller-area">
+                <div class="menu-area" @click="showMenu = true"></div>
             </div>
-        </transition>
-        <div class="img-area">
-            <img class="picture-img" :src="currentPictureUrl">
-        </div>
-        <div v-picture-animate-directive class="img-area" ref="animateDom" @transitionend="animationEnd">
-            <img class="picture-img" :src="animatePictureUrl">
+            <img class="prompt-img" src="@/assets/image/prompt.png" v-if="showPrompt" @click="hidePrompt">
+            <div class="page-tip">
+                {{currentPictureIndex + 1}} / {{maxPictureIndex}}
+            </div>
+            <actionsheet v-model="showDefinitionMenu" :menus="menus" @on-click-menu="menuClick" show-cancel></actionsheet>
         </div>
 
-        <div class="controller-area">
-            <div class="pret-area" @click="pret"></div>
-            <div class="next-area" @click="next"></div>
-            <div class="menu-area" @click="showMenu = true"></div>
-        </div>
-        <img class="prompt-img" src="@/assets/image/prompt.png" v-if="showPrompt" @click="hidePrompt">
-        <div class="page-tip">
-            {{currentPictureIndex + 1}} / {{maxPictureIndex}}
-        </div>
-        <actionsheet v-model="showDefinitionMenu" :menus="menus" @on-click-menu="menuClick" show-cancel></actionsheet>
-        <transition name="move">
-            <div class="continue-read-next-chapter" v-if="showReadNext">
-                <button class="readnext-close-btn" type="button" @click="showReadNext = false">×</button>
-                <button class="readnext-btn" type="button" @click="readNextChapter" v-if="nextChapter.id">继续阅读下一卷</button>
-                <button class="readnext-btn" type="button" @click="readNextChapter" v-if="!nextChapter.id">后面没有啦，返回首页</button>
-            </div>
-        </transition>
+        <ul class="img-area" :style="{ top }">
+            <li class="picture-img" :picture="o" v-for="(pic, index) in pictures" :key="index">
+                <img class="picture-img" :src="pic"/>
+                <div class="continue-read-next-chapter" v-if="index==pictures.length-1">
+                    <button class="readnext-btn" type="button" @click="readNextChapter" v-if="nextChapter.id">继续阅读下一卷</button>
+                    <button class="readnext-btn" type="button" @click="readNextChapter" v-if="!nextChapter.id">后面没有啦，返回首页</button>
+                </div>
+            </li>
+        </ul>
+
+        
+
     </div>
 </template>
 
@@ -44,17 +43,28 @@ import { Actionsheet } from "vux";
 import HideNavBar from "@/components/common/HideNavBar";
 import HeaderBar from "@/components/common/HeaderBar";
 import { setTimeout } from 'timers';
+import Vue from "vue";
 
+import myTouch from '../tools/Touch'
+myTouch(Vue)
+// v-touch:scaleTouch="{func: scalePic, param: ''}" v-touch:slideTouch="{func: movePic, param: ''}"
 export default {
     name: "Picture",
     data() {
         return {
-            pictures: [""],
+            baseLeft : 0,
+            baseTop: 0,
+            bodyWidth: document.body.clientWidth,
+            ele: null, // 不能在这里设置， dom还没有生成
+            isScaleMode:false,
+
+            //pictures: ["http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0001_80337.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0002_20884.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0003_29816.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0004_17150.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0005_16582.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0006_96224.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0007_19393.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0008_61627.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0009_76923.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0010_19846.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0011_12325.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0012_13480.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0013_76974.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0014_10007.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0015_65697.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0016_49238.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0017_89557.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0018_17179.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0019_15264.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0020_30376.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0021_13055.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0022_19893.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0023_15769.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0024_14377.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0025_49427.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0026_57157.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0027_94917.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0028_20751.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0029_82945.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0030_13800.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0031_37586.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0032_87214.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0033_11733.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0034_15393.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0035_28953.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0036_38935.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0037_57291.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0038_17506.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0039_80894.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0040_13749.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0041_64036.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0042_10614.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0043_10578.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0044_35758.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0045_36164.JPG"],
+            pictures:[],
             currentPictureIndex: 0,
-            maxPictureIndex: 0,
+            maxPictureIndex: 45,
             currentDefinition: localStorage.getItem("picture-definition") || "@!z3",
-            currentPictureUrl: "",
-            animatePictureUrl: "",
+            currentPictureUrl: "http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0001_80337.JPG",
+            animatePictureUrl: "http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0001_80337.JPG",
             showMenu: false,
             showDefinitionMenu: false,
             menus: {
@@ -182,10 +192,85 @@ export default {
                 localStorage.removeItem("read-history");
                 this.$router.push("/home");
             }
+        },
+        scalePic: function(e,param, is_endScale){
+            //this.ele = $('img_area')[0]; // 这个应该在图片显示的时候设置
+            this.ele = document.getElementsByClassName('img-area')[0]; // 这个应该在图片显示的时候设置
+            this.isScaleMode = true;
+            console.log(this.ele,param);
+            Vue.prototype.instance.$vux.toast.show(""+param);
+            let nodeStyle = this.ele.style.transform;
+            let changeSize = nodeStyle ?  parseFloat(nodeStyle.slice(nodeStyle.indexOf('scale')+6)) : 0;
+            if(is_endScale){
+              // 缩放图片结束，要重新计算定位
+              this.setMaxdisp(changeSize,parseInt(this.ele.style.marginLeft), parseInt(this.ele.style.marginTop), 'scale');
+              //this.isScaleMode = false;
+              return 
+            }
+            if(nodeStyle){
+              // 如果存在的话，就说明已经设置了，scale已经改变了
+              let currScaleSize = changeSize + param/10; 
+              currScaleSize > 3 ? currScaleSize = 3 : null
+              currScaleSize < 1 ? currScaleSize = 1 : null
+              this.ele.style.transform = 'translate(-50%, -50%) scale('+currScaleSize+','+currScaleSize+')';
+            }else{ // 如果不存在，就说明是第一次设置
+                let scale = 1;
+                this.ele.style.marginLeft =  '0px';
+                this.ele.style.marginTop  = '0px';
+                this.ele.style.transform = 'translate(-50%, -50%) scale('+scale+','+scale+')';
+            }
+        },
+        movePic: function(e,param){
+            if(e.touches.length<=1){
+                if(this.isScaleMode){
+                    this.isScaleMode=false;
+                    return;
+                }
+            }
+            if(this.isScaleMode)return;
+            if(param.is_endMove){ // 每次移动松开手指的时候要下次移动的基础坐标
+              this.baseLeft = parseInt(this.ele.style.marginLeft.slice(0, -2));
+              this.baseTop = parseInt(this.ele.style.marginTop.slice(0, -2));
+            }else{
+              let nodeStyle = this.ele.style.transform 
+              if(nodeStyle){ // 有这个就表示应该是移动
+                let currScaleSize = parseFloat(nodeStyle.slice(nodeStyle.indexOf('scale')+6))
+                this.setMaxdisp(currScaleSize,this.baseLeft+ param.x, this.baseTop + param.y, 'move')
+              }
+            }
+        },
+        setMaxdisp:function(changeSize, changeX, changeY, type){
+          // 计算最大位移
+          // naturalWidth ： 是图片原始的宽度，通过比例可以计算出当前图片在页面的高度
+          let picHeight =  this.bodyWidth  / (this.ele.naturalWidth / this.ele.naturalHeight); 
+          let maxTop = ( picHeight * changeSize - window.innerHeight) /2 
+          let maxLeft = this.bodyWidth / 2 * (changeSize - 1) 
+          if(changeX >= maxLeft){
+            this.ele.style.marginLeft = maxLeft + 'px'
+          }else if(changeX < -maxLeft){
+            this.ele.style.marginLeft = -maxLeft + 'px'
+          }else if(type==='move'){
+            this.ele.style.marginLeft =changeX +'px'; 
+          }
+          // 如果图片当前尺寸大于屏幕尺寸，可以移动
+          if(maxTop > 0){
+            if(changeY >= maxTop){
+              this.ele.style.marginTop = maxTop + 'px';
+            }else if(changeY < -maxTop){
+              this.ele.style.marginTop = -maxTop + 'px'
+            }else if(type==='move'){
+              this.ele.style.marginTop = changeY+'px';
+            }
+          }else if(type==='move'){
+            this.ele.style.marginTop = 0 +'px'; 
+          }
         }
     },
     mounted: function () {
         let that = this;
+
+        console.log('路由参数',that.$route.query);
+
 
         let readHistory = JSON.parse(localStorage.getItem("read-history")) || {};
 
@@ -194,15 +279,18 @@ export default {
         }
 
         that.$api
-            .get("/getpicture", {
-                chapterid: that.chapter.id
+            .get("/page", {
+                url: that.$route.query.url
             })
             .then(function (data) {
-                that.pictures = data.pictures;
-                that.opus = data.opus;
-                that.chapter = data.chapter;
-                that.nextChapter = data.nextChapter;
+                console.log(data);
+                that.pictures = data.images;
                 that.maxPictureIndex = that.pictures.length;
+                return;
+                //that.pictures = data.pictures;
+                //that.opus = data.opus;
+                //that.chapter = data.chapter;
+                //that.nextChapter = data.nextChapter;
                 if (that.maxPictureIndex > 0) {
                     that.currentPictureUrl = that.pictures[that.currentPictureIndex].url + that.currentDefinition;
                     //记录阅读历史
@@ -220,8 +308,18 @@ export default {
 </script>
 
 <style scoped lang="less">
+
+.pic-view {
+}
+
+.controller-view {
+    position: relative;
+    background-color: red;
+
+}
+
 .menu {
-    position: absolute;
+    position: fixed;
     top: 0;
     bottom: 0;
     left: 0;
@@ -273,8 +371,6 @@ export default {
     height: 100vh;
     text-align: center;
     z-index: 2;
-    pointer-events: none;
-
     .picture-img {
         width: auto;
         height: auto;
@@ -287,7 +383,7 @@ export default {
 }
 
 .controller-area {
-    position: relative;
+    position: fixed;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
@@ -335,14 +431,9 @@ export default {
     z-index: 9;
 }
 .continue-read-next-chapter {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100vw;
     height: 100vh;
-    text-align: center;
     background: #000;
-    z-index: 9;
 }
 .readnext-btn {
     margin-top: 75vh;

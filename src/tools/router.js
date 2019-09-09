@@ -7,6 +7,7 @@ import News from "@/components/main/News"
 import Classify from "@/components/main/Classify"
 import Personal from "@/components/main/Personal"
 import Opus from "@/components/Opus"
+import Search from "@/components/Search"
 import Picture from "@/components/Picture"
 
 Vue.use(Router);
@@ -38,12 +39,17 @@ const router = new Router({
             component: Personal
         },
         {
-            path: "/opus/:opusid",
+            path: "/search/:content",
+            name: "search",
+            component: Search
+        },
+        {
+            path: "/opus/",
             name: "opus",
             component: Opus
         },
         {
-            path: "/picture/:chapterid",
+            path: "/picture/",
             name: "picture",
             component: Picture
         }
