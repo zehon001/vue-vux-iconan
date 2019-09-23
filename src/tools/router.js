@@ -16,12 +16,16 @@ const router = new Router({
     routes: [
         {
             path: "/",
-            redirect: "/home"
+            redirect: "/home",
         },
         {
             path: "/home",
             name: "home",
-            component: Home
+            component: Home,
+            beforeEnter : (to,from,next)=>{
+                document.getElementById('titleId').innerHTML = "漫画在线";
+                next();
+            }
         },
         {
             path: "/news",
@@ -41,12 +45,20 @@ const router = new Router({
         {
             path: "/search/:content",
             name: "search",
-            component: Search
+            component: Search,
+            beforeEnter : (to,from,next)=>{
+                document.getElementById('titleId').innerHTML = "搜索结果";
+                next();
+            }
         },
         {
             path: "/opus/",
             name: "opus",
-            component: Opus
+            component: Opus,
+            beforeEnter : (to,from,next)=>{
+                document.getElementById('titleId').innerHTML = "漫画在线";
+                next();
+            }
         },
         {
             path: "/picture/",

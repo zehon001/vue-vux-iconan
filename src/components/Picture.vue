@@ -25,7 +25,9 @@
 
         <ul class="img-area" :style="{ top }">
             <li class="picture-img" :picture="o" v-for="(pic, index) in pictures" :key="index">
-                <img class="picture-img" :src="pic"/>
+                <img class="picture-img" v-if="!pic.isOk" src="@/assets/image/img_loading.png">
+                <img class="picture-img" v-if="pic.isOk" :src="pic.url"/>
+                <div>{{index+1}}/{{pictures.length}}</div>
                 <div class="continue-read-next-chapter" v-if="index==pictures.length-1">
                     <button class="readnext-btn" type="button" @click="readNextChapter" v-if="nextChapter.id">继续阅读下一卷</button>
                     <button class="readnext-btn" type="button" @click="readNextChapter" v-if="!nextChapter.id">后面没有啦，返回首页</button>
@@ -45,9 +47,14 @@ import HeaderBar from "@/components/common/HeaderBar";
 import { setTimeout } from 'timers';
 import Vue from "vue";
 
+
 //import myTouch from '../tools/Touch'
 //myTouch(Vue)
 // v-touch:scaleTouch="{func: scalePic, param: ''}" v-touch:slideTouch="{func: movePic, param: ''}"
+
+import Downloader from '../tools/ImageDownloader';
+
+
 export default {
     name: "Picture",
     data() {
@@ -57,9 +64,12 @@ export default {
             bodyWidth: document.body.clientWidth,
             ele: null, // 不能在这里设置， dom还没有生成
             isScaleMode:false,
-
+            loader:Downloader.getInstance(),
+            nextloader:Downloader.getInstance2(),
             //pictures: ["http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0001_80337.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0002_20884.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0003_29816.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0004_17150.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0005_16582.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0006_96224.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0007_19393.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0008_61627.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0009_76923.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0010_19846.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0011_12325.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0012_13480.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0013_76974.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0014_10007.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0015_65697.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0016_49238.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0017_89557.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0018_17179.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0019_15264.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0020_30376.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0021_13055.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0022_19893.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0023_15769.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0024_14377.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0025_49427.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0026_57157.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0027_94917.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0028_20751.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0029_82945.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0030_13800.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0031_37586.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0032_87214.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0033_11733.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0034_15393.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0035_28953.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0036_38935.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0037_57291.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0038_17506.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0039_80894.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0040_13749.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0041_64036.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0042_10614.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0043_10578.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0044_35758.JPG","http://165.94201314.net/dm04//ok-comic02/kt3/zjdzr/act_084/z_0045_36164.JPG"],
             pictures:[],
+
+            currentIndex:0,
             currentPictureIndex: 0,
             maxPictureIndex: 45,
             currentDefinition: localStorage.getItem("picture-definition") || "@!z3",
@@ -77,6 +87,7 @@ export default {
             },
             showPrompt: localStorage.getItem("has-show-prompt") != "yes",
             opus: {},
+            seasons:[],
             chapter: {
                 id: this.$route.params.chapterid
             },
@@ -89,46 +100,55 @@ export default {
         };
     },
     methods: {
+        initOpus(){
+            let opus;
+            if(opus = localStorage.getItem('opus-history')){
+                opus = JSON.parse(opus);
+                this.opus.name = opus.name;
+                this.seasons = opus.seasons;
+                //console.log("全集：",this.seasons);
+            }
+        },        
         //上一页
-        pret: function (index) {
-            let that = this;
+        // pret: function (index) {
+        //     let that = this;
 
-            if (that.maxPictureIndex > 0 && that.currentPictureIndex > 0) {
-                that.animatePictureUrl = that.pictures[that.currentPictureIndex].url + that.currentDefinition;
-                setTimeout(() => {
-                    that.currentPictureUrl = that.pictures[--that.currentPictureIndex].url + that.currentDefinition;
-                }, 10);
-                this.$refs.animateDom.dispatchEvent(new Event("pret"));
-                that.animateIsNext = false;
-                that.animateIsEnd = false;
-                that.loadPret();
-            }
-        },
-        //下一页
-        next: function () {
-            let that = this;
-            if (that.animateIsEnd == false) {
-                that.$refs.animateDom.dispatchEvent(new Event("transitionend"));
-            }
-            if (that.maxPictureIndex > 0 && that.currentPictureIndex < that.maxPictureIndex - 1) {
-                that.animatePictureUrl = that.pictures[that.currentPictureIndex + 1].url + that.currentDefinition;
-                that.$refs.animateDom.dispatchEvent(new Event("next"));
-                that.animateIsNext = true;
-                that.animateIsEnd = false;
-                that.loadNext();
-            }
-            else if (that.maxPictureIndex > 0 && that.currentPictureIndex >= that.maxPictureIndex - 1) {
-                that.showReadNext = true;
-            }
-        },
+        //     if (that.maxPictureIndex > 0 && that.currentPictureIndex > 0) {
+        //         that.animatePictureUrl = that.pictures[that.currentPictureIndex].url + that.currentDefinition;
+        //         setTimeout(() => {
+        //             that.currentPictureUrl = that.pictures[--that.currentPictureIndex].url + that.currentDefinition;
+        //         }, 10);
+        //         this.$refs.animateDom.dispatchEvent(new Event("pret"));
+        //         that.animateIsNext = false;
+        //         that.animateIsEnd = false;
+        //         that.loadPret();
+        //     }
+        // },
+        // //下一页
+        // next: function () {
+        //     let that = this;
+        //     if (that.animateIsEnd == false) {
+        //         that.$refs.animateDom.dispatchEvent(new Event("transitionend"));
+        //     }
+        //     if (that.maxPictureIndex > 0 && that.currentPictureIndex < that.maxPictureIndex - 1) {
+        //         that.animatePictureUrl = that.pictures[that.currentPictureIndex + 1].url + that.currentDefinition;
+        //         that.$refs.animateDom.dispatchEvent(new Event("next"));
+        //         that.animateIsNext = true;
+        //         that.animateIsEnd = false;
+        //         that.loadNext();
+        //     }
+        //     else if (that.maxPictureIndex > 0 && that.currentPictureIndex >= that.maxPictureIndex - 1) {
+        //         that.showReadNext = true;
+        //     }
+        // },
         animationEnd: function () {
             let that = this;
             that.animateIsEnd = true;
-            if (that.animateIsNext) {
-                if (that.maxPictureIndex > 0 && that.currentPictureIndex < that.maxPictureIndex - 1) {
-                    that.currentPictureUrl = that.pictures[++that.currentPictureIndex].url + that.currentDefinition;
-                }
-            }
+            // if (that.animateIsNext) {
+            //     if (that.maxPictureIndex > 0 && that.currentPictureIndex < that.maxPictureIndex - 1) {
+            //         that.currentPictureUrl = that.pictures[++that.currentPictureIndex].url + that.currentDefinition;
+            //     }
+            // }
             //记录阅读历史
             that.recordHistory();
         },
@@ -136,36 +156,36 @@ export default {
         menuClick: function (definition, name) {
             if (name) {
                 this.showMenu = false;
-                this.currentDefinition = definition;
-                localStorage.setItem("picture-definition", definition);
-                this.currentPictureUrl = this.pictures[this.currentPictureIndex].url + this.currentDefinition;
-                this.loadNext();
+                //this.currentDefinition = definition;
+                //localStorage.setItem("picture-definition", definition);
+                //this.currentPictureUrl = this.pictures[this.currentPictureIndex].url + this.currentDefinition;
+                //this.loadNext();
             }
         },
-        //加载上2张图片
-        loadPret: function () {
-            let that = this;
-            if (that.currentPictureIndex > 0) {
-                let imgObj = new Image();
-                imgObj.src = that.pictures[that.currentPictureIndex - 1].url + that.currentDefinition;
-            }
-            if (that.currentPictureIndex > 1) {
-                let imgObj = new Image();
-                imgObj.src = that.pictures[that.currentPictureIndex - 2].url + that.currentDefinition;
-            }
-        },
-        //加载下2张图片
-        loadNext: function () {
-            let that = this;
-            if (that.currentPictureIndex < that.maxPictureIndex - 1) {
-                let imgObj = new Image();
-                imgObj.src = that.pictures[that.currentPictureIndex + 1].url + that.currentDefinition;
-            }
-            if (that.currentPictureIndex < that.maxPictureIndex - 2) {
-                let imgObj = new Image();
-                imgObj.src = that.pictures[that.currentPictureIndex + 2].url + that.currentDefinition;
-            }
-        },
+        // //加载上2张图片
+        // loadPret: function () {
+        //     let that = this;
+        //     if (that.currentPictureIndex > 0) {
+        //         let imgObj = new Image();
+        //         imgObj.src = that.pictures[that.currentPictureIndex - 1].url + that.currentDefinition;
+        //     }
+        //     if (that.currentPictureIndex > 1) {
+        //         let imgObj = new Image();
+        //         imgObj.src = that.pictures[that.currentPictureIndex - 2].url + that.currentDefinition;
+        //     }
+        // },
+        // //加载下2张图片
+        // loadNext: function () {
+        //     let that = this;
+        //     if (that.currentPictureIndex < that.maxPictureIndex - 1) {
+        //         let imgObj = new Image();
+        //         imgObj.src = that.pictures[that.currentPictureIndex + 1].url + that.currentDefinition;
+        //     }
+        //     if (that.currentPictureIndex < that.maxPictureIndex - 2) {
+        //         let imgObj = new Image();
+        //         imgObj.src = that.pictures[that.currentPictureIndex + 2].url + that.currentDefinition;
+        //     }
+        // },
         //记录阅读历史
         recordHistory: function () {
             let readHistory = {
@@ -183,15 +203,35 @@ export default {
         },
         //阅读下一卷
         readNextChapter: function () {
-            if (this.nextChapter.id) {
-                this.$router.replace("/picture/" + this.nextChapter.id);
+            //console.log('下一页按钮点击');
+            this.loader.stop();
+            this.nextloader.stop();
+            //反序 所以是-1
+            let nextIndex = (this.currentIndex-1);
+            if(nextIndex>=0){
+                //console.log(this.seasons[nextIndex]);
+                let season_url = this.seasons[nextIndex].season_url;
+                //this.$router.push({
+                //    path: "/picture?url=" + season_url + "&index="+nextIndex
+                //});
+                this.$router.replace("/picture?url=" + season_url + "&index="+nextIndex);
                 this.$router.go(0);
-            }
-            else {
-                //如果已经阅读完了，就删除历史并跳回首页
-                localStorage.removeItem("read-history");
+    
+            }else{
                 this.$router.push("/home");
+                
             }
+            
+
+            // if (this.nextChapter.id) {
+            //     this.$router.replace("/picture/" + this.nextChapter.id);
+            //     this.$router.go(0);
+            // }
+            // else {
+            //     //如果已经阅读完了，就删除历史并跳回首页
+            //     localStorage.removeItem("read-history");
+            //     this.$router.push("/home");
+            // }
         },
         scalePic: function(e,param, is_endScale){
             //this.ele = $('img_area')[0]; // 这个应该在图片显示的时候设置
@@ -264,19 +304,66 @@ export default {
           }else if(type==='move'){
             this.ele.style.marginTop = 0 +'px'; 
           }
+        },
+
+        onImageDownComplete(){
+            console.log('图片全部加载完毕,预加载下一页');
+            let that = this;
+
+            this.nextloader.stop();
+
+            let nextIndex = (this.currentIndex-1);
+            if(nextIndex>=0){
+                let season_url = this.seasons[nextIndex].season_url;
+
+                that.$api
+                .get("/page", {
+                    url: season_url
+                })
+                .then(function (data) {
+                    console.log(data);
+                    if(!data||!data.images||!data.images.length)return;
+
+                    let pictures = [];
+                    data.images.map((url)=>{
+                        pictures.push({isOk:false,url:url});
+                    });
+                    that.nextloader.start(pictures,()=>that.onNextImageDownComplete());
+
+                })
+                .catch(that.$errorHandle);
+            }
+        },
+        onNextImageDownComplete(){
+            console.log('下一页图片全部加载完毕');
         }
+
     },
     mounted: function () {
         let that = this;
         let url = that.$route.query.url;
+        this.currentIndex = that.$route.query.index;
         console.log('路由参数',that.$route.query);
+        this.initOpus();
+
+        this.nextChapter.id = this.currentIndex>0;
+
+        let seasons = this.seasons[this.currentIndex];
+        if(seasons){
+            document.getElementById('titleId').innerHTML = seasons.title;
+        }
 
         let history;
         if(history = localStorage.getItem('picture-history')){
             history = JSON.parse(history);
             if(history.url==url){
                 console.log('使用图片历史');
-                that.pictures = history.pictures;
+                that.pictures = [];
+                history.pictures.map((url)=>{
+                    that.pictures.push({isOk:false,url:url});
+                });
+                this.loader.stop();
+                this.loader.start(that.pictures,()=>that.onImageDownComplete());
                 that.maxPictureIndex = that.pictures.length;
                 return;
             }
@@ -300,7 +387,14 @@ export default {
                 //保存结果
                 localStorage.setItem('picture-history',JSON.stringify({url,pictures:data.images,updateTime:Date.now()}));
 
-                that.pictures = data.images;
+                that.pictures = [];
+                data.images.map((url)=>{
+                    that.pictures.push({isOk:false,url:url});
+                });
+
+                that.loader.stop();
+                that.loader.start(that.pictures,()=>that.onImageDownComplete());
+
                 that.maxPictureIndex = that.pictures.length;
                 return;
                 //that.pictures = data.pictures;
@@ -387,7 +481,7 @@ export default {
     height: 100vh;
     text-align: center;
     z-index: 2;
-    pointer-events: none;
+    
     .picture-img {
         width: auto;
         height: auto;

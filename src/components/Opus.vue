@@ -26,7 +26,7 @@
             </tab>
         </div>
         <div class="chapter-area" v-show="tabIndex == 0">
-            <div class="chapter" @click="read(item.season_url, item.title)" v-for="item in seasons" :key="item.season_url">{{item.title}}</div>
+            <div class="chapter" @click="read(item.season_url, item.title,i)" v-for="(item,i) in seasons" :key="item.season_url">{{item.title}}</div>
         </div>
         <div class="summary-area" v-show="tabIndex == 1">
             {{opus.summary}}
@@ -72,15 +72,17 @@ export default {
         };
     },
     methods: {
-        read: function (season_url, title) {
+        read: function (season_url, title,index) {
             let that = this;
+            console.log(index);
             if (season_url) {
                 this.$router.push({
-                    path: "/picture?url=" + season_url
+                    path: "/picture?url=" + season_url + "&index="+index
                 });
             } else if (that.seasons.length > 0) {
+                index = that.seasons.length-1;
                 this.$router.push({
-                    path: "/picture?url=" + that.seasons[0].season_url
+                    path: "/picture?url=" + that.seasons[index].season_url + "&index=" + index
                 });
             }
         },
