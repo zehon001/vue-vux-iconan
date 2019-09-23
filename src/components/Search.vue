@@ -59,8 +59,19 @@ export default {
     mounted: function () {
         let that = this;
         console.log('路由参数',that.$route.params);
+        let history ;
+        let content = that.$route.params.content;
+        if(history = localStorage.getItem('search-history')){
+            history = JSON.parse(history);
+            if(history.content == content){//搜索内容一样
+                console.log('使用搜索历史');
+                that.results = history.results;
+                return;
+            }
+        }
+
         that.$api.get('/search',{
-            content:that.$route.params.content
+            content:content
         })
         .then(function(data){
             console.log(data);
@@ -76,7 +87,12 @@ export default {
                 })
                 d.info = info;
             });
+
+            //保存搜索历史
+            localStorage.setItem('search-history',JSON.stringify({content,results:data,updateTime:Date.now()}));
+            console.log('保存搜索历史');
             that.results = data;
+
             
         })
         .catch(that.$errorHandle);;

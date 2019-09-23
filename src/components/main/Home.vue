@@ -31,6 +31,7 @@ export default {
             if(!this.search_content){
                 Vue.prototype.instance.$vux.toast.show("请输入搜索内容！");
             }else{
+                localStorage.setItem('search-content-history',this.search_content)
                 this.$router.push("/search/" + this.search_content);
             }
 
@@ -42,6 +43,10 @@ export default {
         Recommend
     },
     mounted: function () {
+        let history ;
+        if(history = localStorage.getItem('search-content-history')){
+            this.search_content = history;
+        }
         return;
         let that = this;
         that.$api

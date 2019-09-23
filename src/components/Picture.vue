@@ -45,8 +45,8 @@ import HeaderBar from "@/components/common/HeaderBar";
 import { setTimeout } from 'timers';
 import Vue from "vue";
 
-import myTouch from '../tools/Touch'
-myTouch(Vue)
+//import myTouch from '../tools/Touch'
+//myTouch(Vue)
 // v-touch:scaleTouch="{func: scalePic, param: ''}" v-touch:slideTouch="{func: movePic, param: ''}"
 export default {
     name: "Picture",
@@ -268,8 +268,19 @@ export default {
     },
     mounted: function () {
         let that = this;
-
+        let url = that.$route.query.url;
         console.log('路由参数',that.$route.query);
+
+        let history;
+        if(history = localStorage.getItem('picture-history')){
+            history = JSON.parse(history);
+            if(history.url==url){
+                console.log('使用图片历史');
+                that.pictures = history.pictures;
+                that.maxPictureIndex = that.pictures.length;
+                return;
+            }
+        }
 
 
         let readHistory = JSON.parse(localStorage.getItem("read-history")) || {};
@@ -284,6 +295,11 @@ export default {
             })
             .then(function (data) {
                 console.log(data);
+                if(!data||!data.images||!data.images.length)return;
+
+                //保存结果
+                localStorage.setItem('picture-history',JSON.stringify({url,pictures:data.images,updateTime:Date.now()}));
+
                 that.pictures = data.images;
                 that.maxPictureIndex = that.pictures.length;
                 return;
@@ -371,6 +387,7 @@ export default {
     height: 100vh;
     text-align: center;
     z-index: 2;
+    pointer-events: none;
     .picture-img {
         width: auto;
         height: auto;

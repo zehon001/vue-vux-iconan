@@ -90,9 +90,24 @@ export default {
     },
     mounted: function () {
         let that = this;
-        console.log('路由参数',that.$route.query.url);
+        let url = that.$route.query.url;
+        console.log('路由参数',url);
+
+        
         that.opus.cover = that.$route.query.src||"";
         that.opus.author = that.$route.query.info||"";
+        let history;
+        if(history = localStorage.getItem('opus-history')){
+            history = JSON.parse(history);
+
+            if(history.url==url){
+                console.log('使用介绍历史');
+                that.opus.name = history.name;
+                that.seasons = history.seasons;
+                return;
+            }
+        }
+
         //main_title
         that.$api
             .get("/season", {
@@ -100,6 +115,10 @@ export default {
             })
             .then(function (data) {
                 console.log(data);
+                if(!data||!data.seasons||!data.seasons.length)return;
+                //保存结果
+                localStorage.setItem('opus-history',JSON.stringify({url,name:data.main_title,seasons:data.seasons,updateTime:Date.now()}));
+                console.log('保存历史');
                 that.opus.name = data.main_title||"";
                 that.seasons = data.seasons;
             })
