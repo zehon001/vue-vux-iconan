@@ -8,7 +8,7 @@
                 <img :src="opus.cover" class="opus-body-content-img">
                 <div class="opus-body-content-txt" v-show="!!opus.name">
                     <h1 class="opus-name">{{opus.name}}</h1>
-                    <div class="opus-author">作者：{{opus.author}}</div>
+                    <div class="opus-author">{{opus.author}}</div>
                     <div>
                         <rater v-model="opus.score" star="♡" active-color="#fb7279" :font-size="15" :margin="0" disabled></rater>
                         <span class="opus-popularity">{{opus.popularity}}人已阅</span>
@@ -118,6 +118,11 @@ export default {
             .then(function (data) {
                 console.log(data);
                 if(!data||!data.seasons||!data.seasons.length)return;
+                let info = "";
+                if(data.class)info += "类型："+data.class;
+                if(data.author)info += " 作者: "+data.author;
+                if(info)that.opus.author = info;
+
                 //保存结果
                 localStorage.setItem('opus-history',JSON.stringify({url,name:data.main_title,seasons:data.seasons,updateTime:Date.now()}));
                 console.log('保存历史');
