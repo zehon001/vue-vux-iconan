@@ -211,11 +211,18 @@ export default {
             if(nextIndex>=0){
                 //console.log(this.seasons[nextIndex]);
                 let season_url = this.seasons[nextIndex].season_url;
-                //this.$router.push({
-                //    path: "/picture?url=" + season_url + "&index="+nextIndex
-                //});
-                this.$router.replace("/picture?url=" + season_url + "&index="+nextIndex);
-                this.$router.go(0);
+                // this.$router.push({
+                //     path: "/picture?url=" + season_url + "&index="+nextIndex
+                // });
+                this.$router.replace({
+                    path:"/picture",
+                    query:{
+                        url:season_url,
+                        index:nextIndex
+                    }
+                });
+                //this.$router.go(0);
+                location.reload();
     
             }else{
                 this.$router.push("/home");
