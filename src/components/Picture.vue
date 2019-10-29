@@ -13,9 +13,8 @@
                     <div class="mask" @click="showMenu = false"></div>
                 </div>
             </transition>
-            <div class="controller-area">
                 <div class="menu-area" @click="showMenu = true"></div>
-            </div>
+            
             <img class="prompt-img" src="@/assets/image/prompt.png" v-if="showPrompt" @click="hidePrompt">
             <div class="page-tip">
                 {{currentPictureIndex + 1}} / {{maxPictureIndex}}
@@ -24,6 +23,7 @@
         </div>
 
         <ul class="img-area" :style="{ top }">
+            
             <li class="picture-img" :picture="o" v-for="(pic, index) in pictures" :key="index">
                 <img class="picture-img" v-if="!pic.isOk" src="@/assets/image/img_loading.png">
                 <img class="picture-img" v-if="pic.isOk" :src="pic.url"/>
@@ -441,7 +441,7 @@ export default {
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 3;
+    z-index: 5;
 
     .header-menu {
         height: 60px;
@@ -506,7 +506,7 @@ export default {
     height: 100vh;
     overflow: hidden;
     text-align: center;
-    z-index: 1;
+    z-index: 4;
 }
 .pret-area {
     position: absolute;
@@ -523,7 +523,7 @@ export default {
     z-index: 3;
 }
 .menu-area {
-    position: absolute;
+    position: fixed;
     top: 20vh;
     left: 30vw;
     width: 40vw;
@@ -552,6 +552,7 @@ export default {
     width: 100vw;
     height: 100vh;
     background: #000;
+    z-index: 10;
 }
 .readnext-btn {
     margin-top: 75vh;

@@ -10,7 +10,15 @@ module.exports = {
         // Paths
         assetsSubDirectory: "static",
         assetsPublicPath: "/",
-        proxyTable: {},
+        proxyTable: {
+            // '/api': {
+            //     target: 'http://localhost:7070',//后端接口地址
+            //     changeOrigin: true,//是否允许跨越
+            //     pathRewrite: {
+            //         '^/api': '',//重写,
+            //     }
+            // }
+        },
 
         // Various Dev Server settings
         host: "localhost", // can be overwritten by process.env.HOST
@@ -19,8 +27,7 @@ module.exports = {
         errorOverlay: true,
         notifyOnErrors: true,
         poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
-
-
+       
         /**
          * Source Maps
          */
@@ -45,6 +52,7 @@ module.exports = {
         assetsSubDirectory: "static",
         assetsPublicPath: "./",
 
+       
         /**
          * Source Maps
          */

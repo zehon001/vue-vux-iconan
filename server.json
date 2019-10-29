@@ -10,7 +10,7 @@
                 "pic-service": "http://iconan.bj.bcebos.com"
             },
             "production": {
-                "service": "/comic",
+                "service": "http://www.leronggame.cn/comic",
                 "pic-service": "http://iconan.bj.bcebos.com"
             }
         }
